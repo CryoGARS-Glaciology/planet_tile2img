@@ -1,5 +1,9 @@
 # planet_tile2img Workflow
 
+The following PDF visualizes the input and output for each step of our Python Package including the use of autoRIFT:
+
+[planet_tile2img Workflow.pdf](https://github.com/CryoGARS-Glaciology/planet_tile2img/files/12516182/planet_tile2img.Workflow.pdf)
+
 ## A Note on PlanetScope
 PlanetScope is currently making changes to how their data is stored and accessed. If an error comes up which says "ModuleNotFoundError" or something similatr indicating there might be a package issue, check the PlanetScope site documentation first to see if there was an update to how the data is stored/accessed which might require some tweaking to either the "planetAPI_image_download" code or the "PlanetScope_orders_utils.py" document.
 

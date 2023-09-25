@@ -3,7 +3,7 @@
 # Modified from Planet Labs notebooks: https://github.com/planetlabs/notebooks/tree/master/jupyter-notebooks
 
 #from planet.api import filters
-from planet import data_filter as filters
+# from planet import data_filter as filters
 #from planet import api
 import os
 from shapely import geometry as sgeom

@@ -8,11 +8,13 @@
 # path to the glacier shapefile (UTM projection), the base download folder,
 # and your planet API Key.
 #
+# E.g.:
+#sh run_pipeline_monthly.sh 2021-06 2021-12 /Users/jukesliu/Documents/TURNER/DATA/shapefiles_gis/BoxTurner/BoxTurner_WGS.shp /Users/jukesliu/Documents/TURNER/DATA/shapefiles_gis/BoxTurner/BoxTurner_UTM_07.shp /Users/jukesliu/Documents/TURNER/DATA/VELOCITY_MAPS/forAutoRIFT/IfSAR_DSM_5m_cropped.tif /Users/jukesliu/Documents/TURNER/DATA/shapefiles_gis/main_ice_outline.shp /Volumes/SURGE_DISK/PS_downloads_SK/ c2e92a042f6744eba732c282d09539f8 /Volumes/SURGE_DISK/PS_downloads_SK/noncloudy_for_autorift/
 #
 # Last updated 2023 10 05
 ######################################################################
 
-# terminus picking thresholds
+# terminus picking threshold
 start_yyyy_mm=$1
 end_yyyy_mm=$2
 aoi_path_WGS=$3
@@ -56,18 +58,53 @@ elif (($end_yyyy == $start_yyyy)); then # ending year equal to starting year (ok
     fi
 else # ending year greater than starting year
     # CREATE YEAR, MONTH LIST ACCORDINGLY
-    monthlist=()
-    echo "Processing multiple years of data at the time is still under development. Please try just a single year to start"
+    yyyymm_list=()
+    
+    # generate all months for first year
+    mm=${start_mm#0}
+    until (($mm == 13)); do
+        mm_str=$(printf "%02d" $mm) # two digit month string
+        yyyymm_str=$start_yyyy"-"$mm_str # yyyy-mm
+#        echo $yyyymm_str
+        yyyymm_list=(${yyyymm_list[@]} $yyyymm_str) # add to list
+        mm=$((mm+1)) # increment month
+    done
+    
+    # if there are years in between the first and the last
+    # generate full 1-12 months for those
+    if (($end_yyyy-$start_yyyy > 1)); then
+        year=$((start_yyyy+1))
+        until(($year == ${end_yyyy})); do
+            mm=1
+            until (($mm == 13)); do
+                mm_str=$(printf "%02d" $mm) # two digit month string
+                yyyymm_str=$year"-"$mm_str # yyyy-mm
+                yyyymm_list=(${yyyymm_list[@]} $yyyymm_str) # add to list
+                mm=$((mm+1)) # increment month
+            done
+            year=$((year+1))
+        done
+    fi
+
+    # generate all months for last year
+    mm=1
+    until (($mm == ${end_mm#0}+1)); do
+        mm_str=$(printf "%02d" $mm) # two digit month string
+        yyyymm_str=$end_yyyy"-"$mm_str # yyyy-mm
+#        echo $yyyymm_str
+        yyyymm_list=(${yyyymm_list[@]} $yyyymm_str) # add to list
+        mm=$((mm+1)) # increment month
+    done
 fi
 
 echo ${yyyymm_list[@]}
 month_count=${#yyyymm_list[@]}
-echo $month_count
+echo "$month_count months of data"
 
 for ((a=0; a < $month_count; a++)); do
     monthfolder=${yyyymm_list[$a]}
     echo "Processing all imagery for $monthfolder"
-    
+
     # Calculate next month folder for image download
     month=${monthfolder:5:6}
     year=${monthfolder:0:4}
@@ -81,18 +118,18 @@ for ((a=0; a < $month_count; a++)); do
         next_month=$((month+1))
     fi
     next_month_folder=$year-$(printf "%02d" $next_month)
-    echo $next_month_folder
+#    echo $next_month_folder
 
-    # download the imagery
-    python3 planetAPI_image_download.py $monthfolder $next_month_folder $aoi_path_WGS $API_key
+##    # download the imagery
+    python3 planetAPI_image_download.py $monthfolder $next_month_folder $aoi_path_WGS $API_key $basefolder
 
     # standardize grid
     python3 standardize_grid.py $aoi_path_UTM $raster_5m_path $basefolder$monthfolder/PSScene/ $basefolder$monthfolder/PSScene/standard_grid/
 
     # gather stats (deletes raw imagery)
-    python3 gather_stats.py $basefolder$monthfolder
+    python3 gather_stats.py $basefolder$monthfolder/
 
-#    # optional coregistration step
+#    # OPTIONAL coregistration step
 #    python3 coregister_images.py $basefolder$monthfolder/PSScene/standard_grid/ $glaciershp_path
 
     # stitch along-track satellite chunks together
@@ -104,11 +141,11 @@ for ((a=0; a < $month_count; a++)); do
     # stich satellite chunks for a single date
     python3 stitch_satchunks_by_date.py $basefolder$monthfolder/PSScene/standard_grid/ $glaciershp_path
 
-    # coregister all final images
-    python3 coregister_images.py $basefolder$monthfolder/PSScene/standard_grid/stitched_images/ $glaciershp_path
-
     # crop and move final images
     python3 crop_move_finalimgs.py $glaciershp_path $aoi_path_UTM $basefolder$monthfolder/PSScene/standard_grid/stitched_images/ $final_outfolder
+#
+    #    # coregister all final images - can be saved until all batches are finished running
+#    python3 coregister_images.py $basefolder$monthfolder/PSScene/standard_grid/stitched_images/ $glaciershp_path
     
 done
 echo "Finished running."

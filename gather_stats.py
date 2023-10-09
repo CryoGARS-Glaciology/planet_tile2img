@@ -74,7 +74,7 @@ for datestr in unique_dates:
     
     tile_count = 0
     for idx, row in sat_df.iterrows():
-        tile_count+=len(glob.glob(folderpath+'PSScene/*'+datestr+'*'+row.sat_ID+'*harmonized_clip_5m.tif'))
+        tile_count+=len(glob.glob(folderpath+'PSScene/*'+datestr+'*'+row.sat_ID+'*harmonized_clip.tif'))
     no_tiles_day.append(tile_count)
 
 

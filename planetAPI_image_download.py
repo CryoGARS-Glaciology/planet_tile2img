@@ -41,6 +41,7 @@ start_month = args[1]
 end_month = args[2]
 aoi_path = args[3]
 API_key = args[4]
+out_folder=args[5]
 
 
 # ### Install Planet API Client
@@ -119,7 +120,7 @@ asset_type = "ortho_analytic_4b_sr"
 
 # ----------Output folder----------
 # AKA, where you want your images to be downloaded in your directory
-out_folder = '/Volumes/SURGE_DISK/PS_downloads_SK/'
+# out_folder = '/Volumes/SURGE_DISK/PS_downloads_SK/'
 
 
 # ### Authentication via basic HTTP

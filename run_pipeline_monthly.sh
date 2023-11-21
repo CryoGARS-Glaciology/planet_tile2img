@@ -8,8 +8,10 @@
 # path to the glacier shapefile (UTM projection), the base download folder,
 # and your planet API Key.
 #
+# Important: KEEP SLASHES AFTER FOLDER PATHS
+#
 # E.g.:
-#sh run_pipeline_monthly.sh 2021-06 2021-12 /Users/jukesliu/Documents/TURNER/DATA/shapefiles_gis/BoxTurner/BoxTurner_WGS.shp /Users/jukesliu/Documents/TURNER/DATA/shapefiles_gis/BoxTurner/BoxTurner_UTM_07.shp /Users/jukesliu/Documents/TURNER/DATA/VELOCITY_MAPS/forAutoRIFT/IfSAR_DSM_5m_cropped.tif /Users/jukesliu/Documents/TURNER/DATA/shapefiles_gis/main_ice_outline.shp /Volumes/SURGE_DISK/PS_downloads_SK/ c2e92a042f6744eba732c282d09539f8 /Volumes/SURGE_DISK/PS_downloads_SK/noncloudy_for_autorift/
+#sh run_pipeline_monthly.sh 2021-06 2021-12 /Users/jukesliu/Documents/TURNER/DATA/shapefiles_gis/BoxTurner/BoxTurner_WGS.shp /Users/jukesliu/Documents/TURNER/DATA/shapefiles_gis/BoxTurner/BoxTurner_UTM_07.shp /Users/jukesliu/Documents/TURNER/DATA/VELOCITY_MAPS/forAutoRIFT/IfSAR_DSM_5m_cropped.tif /Users/jukesliu/Documents/TURNER/DATA/shapefiles_gis/main_ice_outline.shp /Volumes/SURGE_DISK/PS_downloads_SK/ INSERT_API_KEY_HERE /Volumes/SURGE_DISK/PS_downloads_SK/noncloudy_for_autorift/
 #
 # Last updated 2023 10 05
 ######################################################################
@@ -120,33 +122,42 @@ for ((a=0; a < $month_count; a++)); do
     next_month_folder=$year-$(printf "%02d" $next_month)
 #    echo $next_month_folder
 
-##    # download the imagery
-    python3 planetAPI_image_download.py $monthfolder $next_month_folder $aoi_path_WGS $API_key $basefolder
+#######    # download the imagery
+#    python3 planetAPI_image_download_halfmonth.py $monthfolder $next_month_folder $aoi_path_WGS $API_key $basefolder
 
-    # standardize grid
-    python3 standardize_grid.py $aoi_path_UTM $raster_5m_path $basefolder$monthfolder/PSScene/ $basefolder$monthfolder/PSScene/standard_grid/
+    # IF GLACIER IS LARGE, MUST SPLIT MONTH INTO HALF TO DOWNLOAD BATCHES OF IMAGERY:
+#    python3 planetAPI_image_download_halfmonth.py $monthfolder $next_month_folder $aoi_path_WGS $API_key $basefolder
 
-    # gather stats (deletes raw imagery)
-    python3 gather_stats.py $basefolder$monthfolder/
-
-#    # OPTIONAL coregistration step
+#    # standardize grid
+#    python3 standardize_grid.py $aoi_path_UTM $raster_5m_path $basefolder$monthfolder/PSScene/ $basefolder$monthfolder/PSScene/standard_grid/
+#
+#    # gather stats (deletes raw imagery)
+#    python3 gather_stats.py $basefolder$monthfolder/
+#
+#    # OPTIONAL: coregistration
 #    python3 coregister_images.py $basefolder$monthfolder/PSScene/standard_grid/ $glaciershp_path
 
     # stitch along-track satellite chunks together
     python3 stitch_by_sat.py $basefolder$monthfolder/PSScene/standard_grid/ $aoi_path_UTM
 
-    # coregister satellite chunks
-    python3 coregister_images.py $basefolder$monthfolder/PSScene/standard_grid/stitched_by_sat/ $glaciershp_path
+    ##################################################################################
+#    # A) select sat largest sat chunk (do not stitch them together) ##################
+#    python3 select_largest_satswath.py $basefolder$monthfolder/PSScene/standard_grid/stitched_by_sat/ $glaciershp_path
 
-    # stich satellite chunks for a single date
-    python3 stitch_satchunks_by_date.py $basefolder$monthfolder/PSScene/standard_grid/ $glaciershp_path
+#    # crop and move final images
+#    python3 crop_move_finalimgs.py $glaciershp_path $aoi_path_UTM $basefolder$monthfolder/PSScene/standard_grid/stitched_by_sat/largest_satchunk/ $final_outfolder
+
+    # B) stitch all sat chunks together (option to coregister first) ######################
+#    # OPTIONAL: coregister satellite chunks
+#    python3 coregister_images.py $basefolder$monthfolder/PSScene/standard_grid/stitched_by_sat/ $glaciershp_path
+
+#    # stich satellite chunks for a single date
+    python3 stitch_satswaths_by_date.py $basefolder$monthfolder/PSScene/standard_grid/ $glaciershp_path
 
     # crop and move final images
     python3 crop_move_finalimgs.py $glaciershp_path $aoi_path_UTM $basefolder$monthfolder/PSScene/standard_grid/stitched_images/ $final_outfolder
-#
-    #    # coregister all final images - can be saved until all batches are finished running
-#    python3 coregister_images.py $basefolder$monthfolder/PSScene/standard_grid/stitched_images/ $glaciershp_path
-    
+#    ##################################################################################
+
 done
 echo "Finished running."
 echo "Final images are placed in $final_outfolder"

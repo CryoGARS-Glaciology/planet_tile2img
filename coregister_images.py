@@ -365,7 +365,7 @@ print(filetype)
 
 if filetype == 'dates':     
     filelist = allfiles # the file list is all files
-    coregister(input_folder,filelist, glacier_outline, OFFSET_THRESH=5, CORR_THRESH=0.8)
+    coregister(input_folder,filelist, glacier_outline, OFFSET_THRESH=2, CORR_THRESH=0.8)
     
 elif filetype == 'sats':
     # grab all unique dates for satellite chunks
@@ -382,7 +382,7 @@ elif filetype == 'sats':
                 dayfiles.append(file)
         # if multiple dayfiles, coregister them
         if len(dayfiles) > 1:
-            coregister(input_folder, dayfiles, glacier_outline, OFFSET_THRESH=5, CORR_THRESH=0.8)
+            coregister(input_folder, dayfiles, glacier_outline, OFFSET_THRESH=2, CORR_THRESH=0.8)
 elif filetype == 'tiles':
     # grab all unique satellite dates
     dates= []; sats = []

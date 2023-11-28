@@ -123,9 +123,9 @@ for ((a=0; a < $month_count; a++)); do
 #    echo $next_month_folder
 
 #######    # download the imagery
-#    python3 planetAPI_image_download_halfmonth.py $monthfolder $next_month_folder $aoi_path_WGS $API_key $basefolder
+    python3 planetAPI_image_download.py $monthfolder $next_month_folder $aoi_path_WGS $API_key $basefolder
 
-    # IF GLACIER IS LARGE, MUST SPLIT MONTH INTO HALF TO DOWNLOAD BATCHES OF IMAGERY:
+#    # # IF GLACIER IS LARGE, MUST SPLIT MONTH INTO HALF TO DOWNLOAD BATCHES OF IMAGERY:
 #    python3 planetAPI_image_download_halfmonth.py $monthfolder $next_month_folder $aoi_path_WGS $API_key $basefolder
 
 #    # standardize grid
@@ -133,30 +133,30 @@ for ((a=0; a < $month_count; a++)); do
 #
 #    # gather stats (deletes raw imagery)
 #    python3 gather_stats.py $basefolder$monthfolder/
+##
+##    # OPTIONAL: coregistration
+##    python3 coregister_images.py $basefolder$monthfolder/PSScene/standard_grid/ $glaciershp_path
 #
-#    # OPTIONAL: coregistration
-#    python3 coregister_images.py $basefolder$monthfolder/PSScene/standard_grid/ $glaciershp_path
-
-    # stitch along-track satellite chunks together
-    python3 stitch_by_sat.py $basefolder$monthfolder/PSScene/standard_grid/ $aoi_path_UTM
-
-    ##################################################################################
-#    # A) select sat largest sat chunk (do not stitch them together) ##################
-#    python3 select_largest_satswath.py $basefolder$monthfolder/PSScene/standard_grid/stitched_by_sat/ $glaciershp_path
-
-#    # crop and move final images
-#    python3 crop_move_finalimgs.py $glaciershp_path $aoi_path_UTM $basefolder$monthfolder/PSScene/standard_grid/stitched_by_sat/largest_satchunk/ $final_outfolder
-
-    # B) stitch all sat chunks together (option to coregister first) ######################
-#    # OPTIONAL: coregister satellite chunks
-#    python3 coregister_images.py $basefolder$monthfolder/PSScene/standard_grid/stitched_by_sat/ $glaciershp_path
-
-#    # stich satellite chunks for a single date
-    python3 stitch_satswaths_by_date.py $basefolder$monthfolder/PSScene/standard_grid/ $glaciershp_path
-
-    # crop and move final images
-    python3 crop_move_finalimgs.py $glaciershp_path $aoi_path_UTM $basefolder$monthfolder/PSScene/standard_grid/stitched_images/ $final_outfolder
+#    # stitch along-track satellite chunks together
+#    python3 stitch_by_sat.py $basefolder$monthfolder/PSScene/standard_grid/ $aoi_path_UTM
+#
 #    ##################################################################################
+##    # A) select sat largest sat chunk (do not stitch them together) ##################
+##    python3 select_largest_satswath.py $basefolder$monthfolder/PSScene/standard_grid/stitched_by_sat/ $glaciershp_path
+#
+##    # crop and move final images
+##    python3 crop_move_finalimgs.py $glaciershp_path $aoi_path_UTM $basefolder$monthfolder/PSScene/standard_grid/stitched_by_sat/largest_satchunk/ $final_outfolder
+#
+#    # B) stitch all sat chunks together (option to coregister first) ######################
+##    # OPTIONAL: coregister satellite chunks
+##    python3 coregister_images.py $basefolder$monthfolder/PSScene/standard_grid/stitched_by_sat/ $glaciershp_path
+#
+##    # stich satellite chunks for a single date
+#    python3 stitch_satswaths_by_date.py $basefolder$monthfolder/PSScene/standard_grid/ $glaciershp_path
+#
+#    # crop and move final images
+#    python3 crop_move_finalimgs.py $glaciershp_path $aoi_path_UTM $basefolder$monthfolder/PSScene/standard_grid/stitched_images/ $final_outfolder
+##    ##################################################################################
 
 done
 echo "Finished running."

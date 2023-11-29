@@ -1,25 +1,71 @@
-# planet_tile2img Workflow
+# planet_tile2img
 
-The following diagram visualizes the input and output for each step of our Python Package including the use of autoRIFT:
+The following diagram visualizes the inputs and steps for our PlanetScope image processing pipeline, including the use of autoRIFT (code in a separate repository called [SK-surge-mapping](https://github.com/jukesliu/SK-surge-mapping)):
 
-![planet_tile2img_workflow](https://github.com/CryoGARS-Glaciology/planet_tile2img/assets/48999537/98cfa837-720f-4603-bbfe-07ac1a614822)
+![flowchart](https://github.com/CryoGARS-Glaciology/planet_tile2img/assets/48999537/c39b49d9-8ed6-4828-95b8-802cd758e079)
 
+There are Jupyter notebook (.ipynb) and .py versions of the majority of these scripts. The bash script run_monthly_pipeline.sh, runs the full pipeline for each month of imagery at a time. Choices of which steps to use (e.g., optional coregistration steps) can be modified in the bash script itself.
 
-## A Note on PlanetScope
-PlanetScope is currently making changes to how their data is stored and accessed. If an error comes up which says "ModuleNotFoundError" or something similatr indicating there might be a package issue, check the PlanetScope site documentation first to see if there was an update to how the data is stored/accessed which might require some tweaking to either the "planetAPI_image_download" code or the "PlanetScope_orders_utils.py" document.
+**Description:**
 
-## Create the autoRIFT Environment
-** This will be added, or all the specification for what needs to be downloaded into the new environment will be added **
+The PlanetScope NIR-band images are downloaded as individual "tiles", which must be stitched along-track for each satellite overpass. The downloads and subsequent pre-processing steps are applied to monthly batches of images, which are split into subfolders renamed by their date, in yyyy-mm format (**planetAPI_image_download.py**). The download step may fail if a large number of tiles are available for the month. We provide an optional half-month alternative for the download script (**planetAPI_image_download_halfmonth.py**), however, users must manually consolidate the folders for each month and rename them with the yyyy-mm to proceed with the following steps. 
 
-(1) Create a new environment
+The downloaded tiles will be of varying spatial resolutions (3.0-4.2 meters) and must be placed onto a standard (5 meter) grid (**standardize_grid.py**). At this point, we summarize the image tile availability and remove the raw imagery, keeping only the grid-standardized tiles to reduce storage needs (**gather_stats.py**).
 
-(2) Download the following packages into the environment:
+The image tiles are first stitched along-track for each satellite, producing a "satellite swath" associated with the acquisition date and PS satellite ID (**stitch_by_sat.py**). Some of the image tiles may be affected by errors in coregistration and may not stitch together smoothly directly. Thus, there is an optional coregistration step, which performs a 2D cross-correlation of the images and finds the x/y offset that corresponds to the maximum normalized correlation value. For each pair of overlapping image tiles, if the correlation value is above the correlation threshold (default 0.8) and the x/y offset is less than the offset threshold (default 2 pixels), then the second image will be shifted by the x/y offset (**coregister_images.py**). These thresholds can be adjusted manually within the pipeline.
 
-PLEASE NOTE THESE ARE VERSION SPECIFIC!
+There may be multiple overlapping satellite swaths on a single day. Acquisition time for the swaths can differ by hours. In order to produce a single image for the day, one may select the largest satellite swath automatically (**select_largest_satswath.py**) or manually select the best satellite swath. Another option available through the pipeline is to automatically stitch together all the satellite swaths for the day, which produces a final image with greater spatial coverage than the individual satellite swaths (**stitch_satswaths_by_date**). The diagram below visualizes the process for both scenarios (single satellite swath versus multiple satellite swaths), including another optional coregistration step.
 
-** This will be added, or how to download the environment will be added **
+![workflow_withimagery](https://github.com/CryoGARS-Glaciology/planet_tile2img/assets/48999537/376d4c5f-9b99-40db-bbdd-d5e7796dfdeb)
 
-## Using the planetAPI_image_download Code
+Once the largest satellite swath or stitched swaths for each date are selected, these final images are cropped to the AOI. Those images with greater than 50% data coverage over the glacier area, determined using the glacier shapefile, are moved into a separate folder (**crop_move_finalimgs.py**). Then, images with clouds covering part or all of the glacier must be removed using manual or automated approaches. The script provided automatically plots the imagery to aid manual filtering and includes optional steps to test automated filtering methods, which analyze gradients in pixel intensities (**cloud_filtering.ipynb**). 
+
+## Inputs
+The PS image to custom autoRIFT pipeline requires four independent input files to run on a glacier site: 
+  1) Glacier outline shapefile
+
+The glacier outline can be downloaded from the Global Land Ice Measurements from Space database with the Randolph Glacier Inventory (RGI) or manually delineated. 
+
+  2) Area of Interest (AOI) shapefile
+
+The AOI shapefile should be a rectangular polygon that covers the glacier and surrounding land. All downloaded images will be cropped to this AOI. If the glacier is large, you may consider cropping the glacier outline and AOI to cover only the portion of the glacier that is of interest in order to reduce computation time.  
+
+  3) A 5-meter resolution geotiff covering the AOI
+
+The 5-m resolution geotiff is used to standardize the spatial resolution for all downloaded imagery, and
+contain any type of data. All downloaded PS images will be placed in the standard georeferenced grid extracted from the input 5-m geotiff. The content of the 5-m geotiff does not make a difference, only the spatial grid.
+    
+  4) A Digital Elevation Model (DEM) covering the AOI
+
+The DEM guides the downstream search in the autoRIFT algorithm and for
+georeferencing the output velocity map. The DEM can be of any spatial resolution (the higher the better) because it will be resampled in the **custom_geogrid_autorift_opt** step.
+
+## Creating the environment
+
+(1) Create a new conda environment with python 3.8
+
+(2) Download the following packages into the environment from the conda-forge channel:
+
+conda install -c conda-forge autorift notebook rasterio matplotlib pandas
+
+_Known issues:_
+
+•	May need to downgrade Open CV lib to 4.5 instead of 4.6
+
+  conda remove opencv
+  
+  conda install -c conda-forge opencv=4.5.0
+  
+Ignore an Intel MK warnings when importing packages.
+
+•	May need to then reinstall scipy and autoRIFT
+
+  conda install -c conda-forge scipy autoRIFT
+
+## Note on using the planetAPI_image_download code
+
+PlanetScope is currently making changes to how their data is stored and accessed. If an error comes up which says "ModuleNotFoundError" or something similar indicating there might be a package issue, check the PlanetScope site documentation first to see if there was an update to how the data is stored/accessed which might require some tweaking to either the "planetAPI_image_download" code or the "PlanetScope_orders_utils.py" document.
+
 (1) Open the terminal on your device and open a Jupyter Notebook.
 
 (2) Open the "planetAPI_image_download" code. The first time you run the "Import necessary packages" code block at the top, you may find that you have to import some packages. When you do so, make sure to import the correct version (listed under "Download The autoRIFT Environment"). Where it says "sys.path.insert" in this block of code, make sure to point the directory to the location of the "planet_tile2img" package on your device.
@@ -30,27 +76,6 @@ PLEASE NOTE THESE ARE VERSION SPECIFIC!
 
 (5) You won't need to change anything else in the planet_tile2img code. make sure to let each step run completely before moving onto the next. When you run the code block titled "Authentication via basic HTTP," you should get <Response [200]> as the output. When you run the two code blocks under the heading "Compile filters and use Quick Search to grab image IDs," you should get the number if images avaliable to download as the output. Polling for success and downloading the results could both take up to 30 minutes to finish, depending on the number of avaliable images.
 
-## Using the interpolate_images_to_DEM Code
-(1) Run the code block to import all necessary packages. You may find that you have to import some packages. When you do so, make sure to import the correct version (listed under "Download The autoRIFT Environment").
 
-(2) Set the "dempath" to the path to your DEM for your glacier of interest. We recommend a 5m DEM to take advantage of the high-resolution PlanetScope images.
-
-(3) Set your imagepath to where the images currently exist and your outpath to where you'd like the referenced set of images to go. Make sure to put a folder named "out" in your outpath.
-
-You should not need to change anything else in this code.
-
-Please note, all images need to be on a standard grid. The DSM is used as a target spatial reference system to which image scenes will be referenced if the source spatial reference system does not match the DSM. This reprojection specifically references the images to the target spatial reference system and does not change the actual coordinate reference system. For all images scenes, the final product is saved in the designated out folder and “_5m” is added to the end of the image name to designate that it had been resampled.
-
-## Using the planet_stitch_coreg_boundaries Code
-(1) Run the code block to import all necessary packages. You may find that you have to import some packages. When you do so, make sure to import the correct version (listed under "Download The autoRIFT Environment").
-
-(2) Set the basepath as the pervious code's outpath. Under "mask_path," are in the directory to your rasterized glacier mask. Make sure this is in the same UTM zone as your galcier (or at least, as the majority of your glacier).
-
-(3) In the code block under "Remove those images that cover less than 50% of the glacier and crop images to the bounding box," add in the path to your glacier shapefile where it says "with fiona.open..." Where is says 'Boxpath", point it to the box shapefile for the glacier.
-
-You should not need to change anything else in this code. The final imaged will have "_clipped" added to the end.
-
-Please note, at this point, the images have been stitched and can be used. We continue on to describe the use of our customized autoRIFT code, but the images themselves are done being mosaicked and are useable at this point in the pipeline. Even with earlier filtering, some images will be obstructed by clouds or shadows. If the images are to be used in autoRIFT or another processing pieline, we recommend they first be manually filtered to remove obstructed images.
-
-## Using the autoRIFT Code
-The customized geogrid/autoRIFT code exists in a separate repository linked here: [SK-surge-mapping](https://github.com/jukesliu/SK-surge-mapping).
+## Customized autoRIFT code
+The customized geogrid/autoRIFT code exists in a separate repository contained and described here: [SK-surge-mapping](https://github.com/jukesliu/SK-surge-mapping).

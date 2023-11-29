@@ -1,13 +1,14 @@
 # planet_tile2img Workflow
 
-The following PDF visualizes the input and output for each step of our Python Package including the use of autoRIFT:
+The following diagram visualizes the input and output for each step of our Python Package including the use of autoRIFT:
 
-[planet_tile2img Workflow.pdf](https://github.com/CryoGARS-Glaciology/planet_tile2img/files/12516182/planet_tile2img.Workflow.pdf)
+![planet_tile2img_workflow](https://github.com/CryoGARS-Glaciology/planet_tile2img/assets/48999537/98cfa837-720f-4603-bbfe-07ac1a614822)
+
 
 ## A Note on PlanetScope
 PlanetScope is currently making changes to how their data is stored and accessed. If an error comes up which says "ModuleNotFoundError" or something similatr indicating there might be a package issue, check the PlanetScope site documentation first to see if there was an update to how the data is stored/accessed which might require some tweaking to either the "planetAPI_image_download" code or the "PlanetScope_orders_utils.py" document.
 
-## Download The autoRIFT Environment
+## Create the autoRIFT Environment
 ** This will be added, or all the specification for what needs to be downloaded into the new environment will be added **
 
 (1) Create a new environment
@@ -17,9 +18,6 @@ PlanetScope is currently making changes to how their data is stored and accessed
 PLEASE NOTE THESE ARE VERSION SPECIFIC!
 
 ** This will be added, or how to download the environment will be added **
-
-## Download or fork then download the planet_tile2img code
-Make sure the code exists on your device.
 
 ## Using the planetAPI_image_download Code
 (1) Open the terminal on your device and open a Jupyter Notebook.
@@ -55,4 +53,4 @@ You should not need to change anything else in this code. The final imaged will 
 Please note, at this point, the images have been stitched and can be used. We continue on to describe the use of our customized autoRIFT code, but the images themselves are done being mosaicked and are useable at this point in the pipeline. Even with earlier filtering, some images will be obstructed by clouds or shadows. If the images are to be used in autoRIFT or another processing pieline, we recommend they first be manually filtered to remove obstructed images.
 
 ## Using the autoRIFT Code
-** Coming Soon **
+The customized geogrid/autoRIFT code exists in a separate repository linked here: [SK-surge-mapping](https://github.com/jukesliu/SK-surge-mapping).

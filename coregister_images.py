@@ -25,18 +25,6 @@ input_folder = args[1]
 glacier_outline = args[2]
 
 
-# inputs: -img_path -glacier_shpfile_path
-
-# In[35]:
-
-
-# input_folder = '/Volumes/SURGE_DISK/PS_downloads_SK/2020-09/PSScene/standard_grid/stitched_by_sat/' # folder with images to coregister
-
-
-# In[36]:
-
-
-# glacier_outline = '/Users/jukesliu/Documents/TURNER/DATA/shapefiles_gis/main_ice_outline.shp'
 
 
 # In[4]:
@@ -97,107 +85,6 @@ def normxcorr2(template, image, mode="full"):
     out[np.where(np.logical_not(np.isfinite(out)))] = 0
     
     return out
-
-
-# ## Test coregistration w/ two offset images
-
-# In[45]:
-
-
-# test_imreader = rio.open(input_folder+file); test_im1 = test_imreader.read(1)
-# test_im1[np.isnan(test_im1)] = 0
-# fig, ax = plt.subplots(figsize=(8,8))
-# imcor = ax.imshow(test_im1); fig.colorbar(imcor, ax=ax)
-# plt.show()
-
-
-# In[46]:
-
-
-# test_im2 = test_im1[:-2,:-1]
-# print(test_im2.shape)
-# test_im2 = np.concatenate([np.zeros((test_im2.shape[0],1)),test_im2], axis=1) # columns
-# test_im2 = np.concatenate([np.zeros((2,test_im2.shape[1])),test_im2], axis=0) # rows
-# fig, ax = plt.subplots(figsize=(8,8))
-# imcor = ax.imshow(test_im2); fig.colorbar(imcor, ax=ax); plt.show()
-# print(test_im1.shape)
-# print(test_im2.shape)
-
-
-# In[47]:
-
-
-# plt.imshow(test_im1-test_im2, cmap='seismic',vmin=-100, vmax=100); plt.colorbar(); plt.show()
-
-
-# In[48]:
-
-
-# corr = normxcorr2(test_im1, test_im2 , mode="full") # normalized 2D cross correlation
-
-
-# In[49]:
-
-
-# [y,x] = np.where(corr == np.nanmax(corr))
-# print(y,x)
-# fig, ax = plt.subplots(figsize=(8,8))
-# imcor = ax.imshow(corr); fig.colorbar(imcor, ax=ax); plt.title('2D correlation')
-# plt.plot(x,y,'r^')
-# plt.show()
-
-
-# In[50]:
-
-
-# shift2_y = test_im2.shape[0]-y[0] # number of pixels to shift im2 left
-# shift2_x = test_im2.shape[1]-x[0] # number of pixels to shift im2 up 
-# # must add 1
-# if shift2_y > 0:
-#     shift2_y+=1
-# elif shift2_y <= 0:
-#     shift2_y+=-1
-    
-# if shift2_x > 0:
-#     shift2_x+=1
-# elif shift2_x <= 0:
-#     shift2_x+=-1
-# print(shift2_y, shift2_x)
-
-
-# In[51]:
-
-
-# shifted_im2 = test_im2
-# [ylen,xlen] = shifted_im2.shape
-
-# # do x first
-# if shift2_x > 0: # if the image has been moved to the left
-#     shifted_im2 = shifted_im2[:,:xlen-shift2_x] # grab image from left edge
-#     shifted_im2 = np.concatenate([np.zeros((ylen,shift2_x)),shifted_im2], axis=1) # add columns from left edge
-# elif shift2_x < 0: # if the image has been moved to the right
-#     shifted_im2 = shifted_im2[:,abs(shift2_x):] # grab the image from the right edge
-#     shifted_im2 = np.concatenate([shifted_im2,np.zeros((ylen,abs(shift2_x)))], axis=1) # add columns from right edge
-    
-# # then shift y
-# if shift2_y > 0: # if the image has been moved up
-#     shifted_im2 = shifted_im2[:ylen-shift2_y,:] # grab image from the top edge
-#     shifted_im2 = np.concatenate([np.zeros((shift2_y,xlen)),shifted_im2], axis=0) # add rows from the top
-# elif shift2_y < 0: # if the image has moved down
-#     shifted_im2 = shifted_im2[abs(shift2_y):,:] # grab image from the bottom edge
-#     shifted_im2 = np.concatenate([shifted_im2,np.zeros((abs(shift2_y),xlen))], axis=0) # add rows from bottom
-
-# # shifted_im2 = np.concatenate([np.zeros((shift2_y,shifted_im2.shape[1])),shifted_im2], axis=0)
-# plt.figure(); plt.imshow(shifted_im2); plt.colorbar(); plt.show()
-
-
-# In[52]:
-
-
-# # difference should now be 0
-# fig, ax = plt.subplots(figsize=(8,8))
-# plt.imshow(test_im1-shifted_im2, cmap='seismic',vmin=-100, vmax=100); plt.colorbar(); plt.title('difference')
-# plt.show()
 
 
 # # Coregistration function

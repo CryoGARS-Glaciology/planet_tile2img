@@ -114,9 +114,8 @@ max_cloud_cover = 0.8
 item_type = "PSScene"
 asset_type = "ortho_analytic_4b_sr"
 
-# ----------Planet API Key---------- MAKE THIS PRIVATE USING BOTO3?
+# ----------Planet API Key---------- 
 # Find your API key on your Planet Account > My Settings > API Key
-# API_key = 'c2e92a042f6744eba732c282d09539f8'
 
 # ----------Output folder----------
 # AKA, where you want your images to be downloaded in your directory

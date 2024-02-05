@@ -8,6 +8,8 @@ This repository contains code to pre-process PlanetScope images that may be used
 ### Citation
 Liu, J., Gendreau, M., Enderlin, E., and Aberle, R. (submitted). Improved records of glacier flow instabilities using customized NASA autoRIFT applied to PlanetScope imagery. _The Cryosphere_.
 
+The repository also contains the code `figure_generation_code.ipynb` used to generate the figures in the manuscript.
+
 # Description
 The following diagram visualizes the inputs and steps for our PlanetScope image processing pipeline, including the use of autoRIFT (code in a separate repository called [SK-surge-mapping](https://github.com/jukesliu/SK-surge-mapping)):
 

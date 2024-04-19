@@ -126,5 +126,5 @@ PlanetScope is currently making changes to how their data is stored and accessed
 ## Customized autoRIFT code
 The customized geogrid/autoRIFT code exists in a separate repository contained and described here: [SK-surge-mapping](https://github.com/jukesliu/SK-surge-mapping).
 
-# Funding and Acknowledgements
+## Funding and Acknowledgements
 This research is funded by NASA FINNEST Award 80NSSC21K1640, NSF Award ANS1954006, and the Department of Defense SMART Scholarship.

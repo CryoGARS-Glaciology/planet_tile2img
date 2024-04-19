@@ -79,7 +79,7 @@ sh run_pipeline_monthly.sh 2021-06 2021-12 /path/to/WGS/projection/AOI/shapefile
 ```
 where 2021-06 is the starting month and 2021-12 is the ending month. Images will be downloaded an processed from June 1, 2021 to December 31, 2021.
 
-## Installation of the CautoRIFT environment with micromamba on MacOS
+## Installation of the CautoRIFT environment with micromamba
 
 (0)	Install micromamba
 ```

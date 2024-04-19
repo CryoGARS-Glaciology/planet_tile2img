@@ -1,6 +1,6 @@
 # planet_tile2img
 [Jukes Liu](https://github.com/jukesliu), [Maddie Gendreau](https://github.com/Maddie-Katie), [Ellyn Enderlin](https://github.com/ellynenderlin), and [Rainey Aberle](https://github.com/RaineyAbe). Department of Geosciences and Cryosphere Remote Sensing and Geophysics (CryoGARS) Lab, Boise State University.
-### Contact: jukesliu@boisestate.edu
+### Contact: jukesliu@boisestate.edu, jukes.liu@gmail.com
 
 ### Summary
 This repository contains code to pre-process PlanetScope images that may be used as input for glacier velocity mapping using NASA's autonomous Repeat Image Feature Tracking (autoRIFT) software. The images are downloaded using the Planet Labs API as individual tiles that are likely to only partially cover a glacier site. Image pre-processing steps include standardizing the spatial resolution of the image tiles, mosaicking them together along- and across-track, and removing cloudy images prior to feature-tracking. The downloaded images have large file sizes and so the processing for months to years of data takes hours. Therefore, the scripts are also provided as .py scripts which are automatically run in sequence in a bash script `run_monthly_pipeline.sh`. The pipeline requires a user account with Planet Labs and its associated Planet API key, which may be acquired through the NASA Commercial Smallsat Data Acquisition (CSDA) Program.
@@ -79,28 +79,36 @@ sh run_pipeline_monthly.sh 2021-06 2021-12 /path/to/WGS/projection/AOI/shapefile
 ```
 where 2021-06 is the starting month and 2021-12 is the ending month. Images will be downloaded an processed from June 1, 2021 to December 31, 2021.
 
-# Installation
+## Installation of the CautoRIFT environment with micromamba on MacOS
 
-(1) Create a new conda environment with python 3.8
+(0)	Install micromamba
+```
+"${SHELL}" <(curl -L micro.mamba.pm/install.sh)
+```
 
-(2) Download the following packages into the environment from the conda-forge channel:
+(1) Create a new environment named "cautorift" with python 3.8.16
+```
+micromamba create -n cautorift python=3.8.16
+```
 
-conda install -c conda-forge autorift notebook rasterio matplotlib pandas
+(2) Activate the environment. Then, download the following packages into the environment in the following order:
+```
+micromamba activate cautorift
 
-_Known issues:_
+micromamba install autorift=1.1.0=py38hd9c93a9_0 -c conda-forge
 
-•	May need to downgrade Open CV lib to 4.5 instead of 4.6
+micromamba install notebook matplotlib pandas -c conda-forge
 
-  conda remove opencv
-  
-  conda install -c conda-forge opencv=4.5.0
-  
-Ignore an Intel MK warnings when importing packages.
+micromamba install opencv=4.5.0 -c conda-forge
 
-•	May need to then reinstall scipy and autoRIFT
+micromamba install rasterio=1.2.10
+```
+(2) Find the correct __autoRIFT.py__ script (within `micromamba/envs/cautorift/`) using the search bar in Finder and find & replace all the instances of __np.bool__ to __bool__ and __np.int__ to __int__. See my __autoRIFT.py__ path below for reference:
 
-  conda install -c conda-forge scipy autoRIFT
+```
+~/micromamba/envs/cautorift/lib/python3.8/site-packages/autoRIFT/autoRIFT.py
 
+```
 ## Note on using the planetAPI_image_download code
 
 PlanetScope is currently making changes to how their data is stored and accessed. If an error comes up which says "ModuleNotFoundError" or something similar indicating there might be a package issue, check the PlanetScope site documentation first to see if there was an update to how the data is stored/accessed which might require some tweaking to either the "planetAPI_image_download" code or the "PlanetScope_orders_utils.py" document.

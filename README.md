@@ -1,6 +1,6 @@
 # planet_tile2img
 [Jukes Liu](https://github.com/jukesliu), [Maddie Gendreau](https://github.com/Maddie-Katie), [Ellyn Enderlin](https://github.com/ellynenderlin), and [Rainey Aberle](https://github.com/RaineyAbe). Department of Geosciences and Cryosphere Remote Sensing and Geophysics (CryoGARS) Lab, Boise State University.
-### Contact: jukesliu@boisestate.edu, jukes.liu@gmail.com
+#### Contact: jukesliu@boisestate.edu, jukes.liu@gmail.com
 
 ### Summary
 This repository contains code to pre-process PlanetScope images that may be used as input for glacier velocity mapping using NASA's autonomous Repeat Image Feature Tracking (autoRIFT) software. The images are downloaded using the Planet Labs API as individual tiles that are likely to only partially cover a glacier site. Image pre-processing steps include standardizing the spatial resolution of the image tiles, mosaicking them together along- and across-track, and removing cloudy images prior to feature-tracking. The downloaded images have large file sizes and so the processing for months to years of data takes hours. Therefore, the scripts are also provided as .py scripts which are automatically run in sequence in a bash script `run_monthly_pipeline.sh`. The pipeline requires a user account with Planet Labs and its associated Planet API key, which may be acquired through the NASA Commercial Smallsat Data Acquisition (CSDA) Program.

@@ -6,7 +6,7 @@
 This repository contains code to pre-process PlanetScope images that may be used as input for glacier velocity mapping using NASA's autonomous Repeat Image Feature Tracking (autoRIFT) software. The images are downloaded using the Planet Labs API as individual tiles that are likely to only partially cover a glacier site. Image pre-processing steps include standardizing the spatial resolution of the image tiles, mosaicking them together along- and across-track, and removing cloudy images prior to feature-tracking. The downloaded images have large file sizes and so the processing for months to years of data takes hours. Therefore, the scripts are also provided as .py scripts which are automatically run in sequence in a bash script `run_monthly_pipeline.sh`. The pipeline requires a user account with Planet Labs and its associated Planet API key, which may be acquired through the NASA Commercial Smallsat Data Acquisition (CSDA) Program.
 
 ### Citation
-Liu, J., Gendreau, M., Enderlin, E., and Aberle, R. (in review). Improved records of glacier flow instabilities using customized NASA autoRIFT applied to PlanetScope imagery. _The Cryosphere_.
+Liu, J., Gendreau, M., Enderlin, E. M., & Aberle, R. (2024). Improved records of glacier flow instabilities using customized NASA autoRIFT (CautoRIFT) applied to PlanetScope imagery. The Cryosphere, 18(8), 3571–3590. [https://doi.org/10.5194/tc-18-3571-2024](https://doi.org/10.5194/tc-18-3571-2024)
 
 The repository also contains the code `figure_generation_code.ipynb` used to generate the figures in the manuscript.
 
@@ -124,7 +124,7 @@ PlanetScope is currently making changes to how their data is stored and accessed
 (5) You won't need to change anything else in the planet_tile2img code. make sure to let each step run completely before moving onto the next. When you run the code block titled "Authentication via basic HTTP," you should get <Response [200]> as the output. When you run the two code blocks under the heading "Compile filters and use Quick Search to grab image IDs," you should get the number if images avaliable to download as the output. Polling for success and downloading the results could both take up to 30 minutes to finish, depending on the number of avaliable images.
 
 ## Customized autoRIFT code
-The customized geogrid/autoRIFT code exists in a separate repository contained and described here: [CautoRIFT](https://github.com/jukesliu/CautoRIFT)).
+The customized geogrid/autoRIFT code exists in a separate repository contained and described here: [CautoRIFT](https://github.com/jukesliu/CautoRIFT).
 
 ## Funding and Acknowledgements
 This research is funded by NASA FINNEST Award 80NSSC21K1640, NSF Award ANS1954006, and the Department of Defense SMART Scholarship.
